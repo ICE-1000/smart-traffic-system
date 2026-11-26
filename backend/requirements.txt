@@ -1,0 +1,21 @@
+# --- Web backend ---
+fastapi>=0.115
+uvicorn[standard]>=0.30        # [standard] includes the WebSocket library
+pydantic>=2.7
+psutil>=5.9
+tzdata>=2024.1                 # time-zone database for Windows (peak periods in Africa/Lusaka time)
+
+# --- Database (SQLite by default, PostgreSQL via DATABASE_URL) ---
+sqlalchemy>=2.0
+alembic>=1.13
+psycopg[binary]>=3.1           # PostgreSQL driver
+
+# --- Cameras + computer vision ---
+numpy>=1.26
+opencv-python-headless>=4.8    # RTSP/HTTP decoding (FFmpeg backend), JPEG encoding
+ultralytics>=8.4               # YOLO26 + ByteTrack  (AGPL-3.0, see docs/LIMITATIONS.md)
+lap>=0.5                       # linear assignment used by ByteTrack
+
+# --- Tests ---
+pytest>=8
+httpx>=0.27

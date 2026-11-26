@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+# Env / secrets
+.env
+backend/.env
+# Data
+data/
+*.db
+*.mp4
+!samples/synthetic_approach.mp4
+*.avi
+# Models
+*.pt
+!models/yolo26n.pt
+*.onnx
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+# Generated / downloaded artefacts
+models/*.pt
+!models/yolo26n.pt
+models/*_openvino_model/
+samples/*.mp4
+!samples/synthetic_approach.mp4
+*.phase1-backup.db
