@@ -1,5 +1,6 @@
-import { Bell, ChevronDown, User } from 'lucide-react'
+import { Bell, ChevronDown, LogOut, User } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useAuth } from '../auth/AuthContext'
 import { useLiveData } from '../hooks/useLiveData'
 import { clockSec } from '../lib/format'
 
@@ -15,11 +16,17 @@ function useNow() {
 export function TopBar() {
   const now = useNow()
   const { snapshot, wsStatus, lastMessageAt } = useLiveData()
+  const { user, logout } = useAuth()
   const [bellOpen, setBellOpen] = useState(false)
+  const [userOpen, setUserOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const userRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const close = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setBellOpen(false)
+    const close = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setBellOpen(false)
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserOpen(false)
+    }
     document.addEventListener('mousedown', close)
     return () => document.removeEventListener('mousedown', close)
   }, [])
@@ -91,10 +98,35 @@ export function TopBar() {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-white">
-          <User size={16} />
-          <span>operator</span>
-          <ChevronDown size={13} className="text-txt-dim" />
+        <div className="relative" ref={userRef}>
+          <button
+            onClick={() => setUserOpen((o) => !o)}
+            className="flex items-center gap-1.5 text-white hover:text-sky-accent"
+            aria-haspopup="menu"
+            aria-expanded={userOpen}
+          >
+            <User size={16} />
+            <span>{user?.display_name ?? 'operator'}</span>
+            <ChevronDown size={13} className="text-txt-dim" />
+          </button>
+          {userOpen && (
+            <div className="panel absolute right-0 top-9 z-50 w-56" role="menu">
+              <div className="border-b border-line-soft/50 p-3">
+                <div className="text-[13px] text-white">{user?.display_name}</div>
+                <div className="text-[11px] text-txt-dim">
+                  {user?.username} · {user?.role}
+                  {user?.mfa_enabled ? ' · 2FA on' : ''}
+                </div>
+              </div>
+              <button
+                role="menuitem"
+                onClick={() => logout()}
+                className="flex w-full items-center gap-2 p-3 text-left text-[12px] text-txt hover:bg-ink-850 hover:text-white"
+              >
+                <LogOut size={14} /> Sign out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -178,3 +178,29 @@ class ValidationCount(Base):
     manual_count: Mapped[int] = mapped_column(Integer)
     manual_mean_wait_s: Mapped[float | None] = mapped_column(Float, nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class User(Base):
+    """Dashboard operator account. Passwords are stored as scrypt hashes only."""
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    email: Mapped[str | None] = mapped_column(String(254), unique=True, nullable=True)
+    display_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    role: Mapped[str] = mapped_column(String(16), default="operator")  # admin | operator
+    password_hash: Mapped[str] = mapped_column(String(255))
+    totp_secret: Mapped[str | None] = mapped_column(String(64), nullable=True)  # set = 2FA required
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[float] = mapped_column(Float)
+    last_login: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+
+class UserSession(Base):
+    """A signed-in browser. `id` is the SHA-256 of the cookie token, never the token itself."""
+    __tablename__ = "user_sessions"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[float] = mapped_column(Float)
+    expires_at: Mapped[float] = mapped_column(Float, index=True)
+    user_agent: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
