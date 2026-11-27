@@ -8,9 +8,11 @@ from __future__ import annotations
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.app.api.auth import ensure_admin, require_user
+from backend.app.api.auth import router as auth_router
 from backend.app.api.research import router as research_router
 from backend.app.api.routes import router
 from backend.app.core.config import settings
@@ -22,6 +24,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     runtime.bootstrap_db()
+    ensure_admin()
     runtime.step(settings.tick_seconds)  # first snapshot before clients arrive
     runtime.start()
     yield
@@ -34,13 +37,16 @@ app = FastAPI(
     description="Research/simulation prototype. Not connected to any real traffic controller.",
     lifespan=lifespan,
 )
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["*"], allow_headers=["*"])
-app.include_router(router)
-app.include_router(research_router)
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True,
+                   allow_methods=["*"], allow_headers=["*"])
+app.include_router(auth_router)
+# Everything else requires a signed-in operator (except /api/health, see auth.PUBLIC_PATHS).
+app.include_router(router, dependencies=[Depends(require_user)])
+app.include_router(research_router, dependencies=[Depends(require_user)])
 
 
 @app.websocket("/ws/live")
-async def ws_live(ws: WebSocket) -> None:
+async def ws_live(ws: WebSocket, _user=Depends(require_user)) -> None:
     await runtime.ws.connect(ws)
     try:
         if runtime.snapshot:

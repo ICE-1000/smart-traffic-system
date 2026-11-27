@@ -6,6 +6,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
   })
   if (!res.ok) {
+    // Session expired or signed out elsewhere: send the user back to the login page.
+    if (res.status === 401 && !path.startsWith('/api/auth/')) window.dispatchEvent(new Event('auth:expired'))
     let detail = `${res.status} ${res.statusText}`
     try {
       const body = await res.json()

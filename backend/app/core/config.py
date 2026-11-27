@@ -42,6 +42,15 @@ class Settings:
     demo_seed: int = int(os.getenv("DEMO_SEED", "7"))
     intersection_id: str = os.getenv("INTERSECTION_ID", "INT-001")
     intersection_name: str = os.getenv("INTERSECTION_NAME", "Demo Intersection — Lusaka")
+    # --- Authentication ---
+    # First start with an empty users table creates this admin account. With no ADMIN_PASSWORD a
+    # random one is generated and written to data/admin-credentials.txt (and the backend log).
+    admin_username: str = os.getenv("ADMIN_USERNAME", "admin")
+    admin_email: str | None = os.getenv("ADMIN_EMAIL") or None
+    admin_password: str | None = os.getenv("ADMIN_PASSWORD") or None
+    session_hours: float = float(os.getenv("SESSION_HOURS", "12"))  # without "Remember Me"
+    remember_days: float = float(os.getenv("REMEMBER_DAYS", "30"))  # with "Remember Me"
+    cookie_secure: bool = os.getenv("COOKIE_SECURE", "false").lower() == "true"  # true when served over HTTPS
     cors_origins: list[str] = field(
         default_factory=lambda: os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
     )

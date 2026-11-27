@@ -1,0 +1,12 @@
+.login-root {
+  background-color: #050d1f;
+  background-image: linear-gradient(90deg, rgba(5, 13, 31, 0.88) 0%, rgba(5, 13, 31, 0.76) 45%, rgba(5, 13, 31, 0.64) 100%),
+    url('../assets/login-bg.jpg');
+  background-size: cover;
+  background-position: center;
+}
+.login-root input:-webkit-autofill {
+  -webkit-text-fill-color: #e6eefc;
+  -webkit-box-shadow: 0 0 0 40px #081530 inset;
+  caret-color: #e6eefc;
+}

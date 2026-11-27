@@ -1,4 +1,5 @@
 import type React from 'react'
+import { AuthProvider, useAuth } from './auth/AuthContext'
 import { useHashRoute, type PageId } from './hooks/useHashRoute'
 import { LiveDataProvider } from './hooks/useLiveData'
 import { AppLayout } from './layouts/AppLayout'
@@ -8,6 +9,7 @@ import { CongestionPage } from './pages/CongestionPage'
 import { EvaluationPage } from './pages/EvaluationPage'
 import { IncidentsPage } from './pages/IncidentsPage'
 import { LiveMonitoringPage } from './pages/LiveMonitoringPage'
+import { LoginPage } from './pages/LoginPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { PriorityPage } from './pages/PriorityPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -15,6 +17,21 @@ import { SimulationPage } from './pages/SimulationPage'
 import { SurveysPage } from './pages/SurveysPage'
 
 export default function App() {
+  return (
+    <AuthProvider>
+      <AuthGate />
+    </AuthProvider>
+  )
+}
+
+function AuthGate() {
+  const { status } = useAuth()
+  if (status === 'loading') return <div className="h-full bg-ink-950" />
+  if (status === 'signed-out') return <LoginPage />
+  return <Dashboard />
+}
+
+function Dashboard() {
   const [page, navigate] = useHashRoute()
   const pages: Record<PageId, React.ReactNode> = {
     overview: <OverviewPage onNavigate={navigate} />,
